@@ -40,24 +40,36 @@ class MainFragment : Fragment() {
 
     override fun onViewCreated(view: View, savedInstanceState: Bundle?) {
         super.onViewCreated(view, savedInstanceState)
-        viewModel = ViewModelProvider(this)[NoteViewModel::class.java]
+//        viewModel = ViewModelProvider(this)[NoteViewModel::class.java]
+
+        viewModel = ViewModelProvider(this).get(NoteViewModel::class.java)
+
+        viewModel.dataLiveData.observe(viewLifecycleOwner) { data ->
+            // Update your UI with the data here
+            data.forEach {
+                binding.textView.text = it.title.toString()
+            }
+        }
+
+        // Fetch data when needed, e.g., in response to a button click or in onResume
+        viewModel.fetchData()
 
         // Observe the LiveData from the ViewModel
-        viewModel.dataLiveData.observe(viewLifecycleOwner, Observer { data ->
-            Log.d(TAG, "onViewCreatedRoomdataOffline: ${data.size}")
-            data.forEach {
-                binding.textView.text = it.title.toString()
-            }
-            // Update the UI with the data
-            // For example, update a RecyclerView adapter with the data
-        })
-        viewModel.allNotesLiveData.observe(viewLifecycleOwner,Observer{data ->
-            data.forEach {
-                binding.textView.text = it.title.toString()
-            }
-            Toast.makeText(requireContext(), "${data.size}", Toast.LENGTH_SHORT).show()
-        })
-        viewModel.fetchData()
+//        viewModel.dataLiveData.observe(viewLifecycleOwner, Observer { data ->
+//            Log.d(TAG, "onViewCreatedRoomdataOffline: ${data.size}")
+//            data.forEach {
+//                binding.textView.text = it.title.toString()
+//            }
+//            // Update the UI with the data
+//            // For example, update a RecyclerView adapter with the data
+//        })
+//        viewModel.allNotesLiveData.observe(viewLifecycleOwner,Observer{data ->
+//            data.forEach {
+//                binding.textView.text = it.title.toString()
+//            }
+//            Toast.makeText(requireContext(), "${data.size}", Toast.LENGTH_SHORT).show()
+//        })
+//        viewModel.fetchData()
 
     }
 }

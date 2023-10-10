@@ -12,10 +12,10 @@ import kotlinx.coroutines.launch
 import javax.inject.Inject
 
 
+
 @HiltViewModel
 class NoteViewModel @Inject constructor(private val noteRepository: NoteRepository) : ViewModel() {
     val dataLiveData: LiveData<List<AllDataModel>> = noteRepository.dataLiveData
-    val allNotesLiveData: LiveData<List<AllDataModel>> = noteRepository.allNotesLiveData
 
     fun fetchData() {
         viewModelScope.launch {
@@ -26,6 +26,8 @@ class NoteViewModel @Inject constructor(private val noteRepository: NoteReposito
             }
         }
     }
+}
+
 
 //    private val _dataStateLiveData = MutableLiveData<State<List<AllDataModel>>>()
 //    val dataStateLiveData: LiveData<State<List<AllDataModel>>> = _dataStateLiveData
@@ -47,7 +49,7 @@ class NoteViewModel @Inject constructor(private val noteRepository: NoteReposito
 //            }
 //        }
 //    }
-}
+//}
 
 //@HiltViewModel
 //class NoteViewModel @Inject constructor(private val noteRepository: NoteRepository) : ViewModel() {
