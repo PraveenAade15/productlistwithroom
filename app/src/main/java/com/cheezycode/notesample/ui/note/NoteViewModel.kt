@@ -6,27 +6,43 @@ import androidx.lifecycle.viewModelScope
 import com.cheezycode.notesample.database.AllDataModel
 
 import com.cheezycode.notesample.repository.NoteRepository
+import com.cheezycode.notesample.utils.NetworkResult
 import com.cheezycode.notesample.utils.State
 import dagger.hilt.android.lifecycle.HiltViewModel
 import kotlinx.coroutines.launch
 import javax.inject.Inject
-
-
-
 @HiltViewModel
 class NoteViewModel @Inject constructor(private val noteRepository: NoteRepository) : ViewModel() {
-    val dataLiveData: LiveData<List<AllDataModel>> = noteRepository.dataLiveData
+    val dataLiveData: LiveData<NetworkResult<List<AllDataModel>>> = noteRepository.dataLiveData
 
     fun fetchData() {
         viewModelScope.launch {
             try {
-                noteRepository.fetchData()
+                val result = noteRepository.fetchData()
+                // The repository updates dataLiveData with the result
             } catch (e: Exception) {
                 // Handle the exception, e.g., show an error message to the user
             }
         }
     }
 }
+
+
+
+//@HiltViewModel
+//class NoteViewModel @Inject constructor(private val noteRepository: NoteRepository) : ViewModel() {
+//    val dataLiveData: LiveData<List<AllDataModel>> = noteRepository.dataLiveData
+//
+//    fun fetchData() {
+//        viewModelScope.launch {
+//            try {
+//                noteRepository.fetchData()
+//            } catch (e: Exception) {
+//                // Handle the exception, e.g., show an error message to the user
+//            }
+//        }
+//    }
+//}
 
 
 //    private val _dataStateLiveData = MutableLiveData<State<List<AllDataModel>>>()

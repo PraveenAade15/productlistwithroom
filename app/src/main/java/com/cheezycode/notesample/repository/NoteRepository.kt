@@ -21,18 +21,17 @@ class NoteRepository @Inject constructor(
     private val localDataSource: LocalDataSource,
     private val context: Context
 ) {
-    private val _dataLiveData = MediatorLiveData<List<AllDataModel>>()
-    val dataLiveData: LiveData<List<AllDataModel>> = _dataLiveData
+    private val _dataLiveData = MediatorLiveData<NetworkResult<List<AllDataModel>>>()
+    val dataLiveData: LiveData<NetworkResult<List<AllDataModel>>> = _dataLiveData
 
     init {
         _dataLiveData.addSource(localDataSource.allNotesLiveData) {
-            _dataLiveData.value = it
+            _dataLiveData.postValue(NetworkResult.Success(it))
         }
     }
 
-    suspend fun fetchData(): List<AllDataModel> {
+    suspend fun fetchData(): NetworkResult<List<AllDataModel>> {
         if (context.isNetworkAvailable()) {
-            Toast.makeText(context, "Internet is There", Toast.LENGTH_SHORT).show()
             try {
                 val response = noteAPI.getNotes()
                 if (response.isSuccessful) {
@@ -40,29 +39,27 @@ class NoteRepository @Inject constructor(
                     if (responseBody != null) {
                         val allDataList = mapApiProductsToAllDataModels(responseBody)
                         localDataSource.insertRecipes(allDataList)
-                        _dataLiveData.postValue(allDataList) // Update LiveData with API data
-                        return allDataList
+                        _dataLiveData.postValue(NetworkResult.Success(allDataList)) // Update LiveData with API data
+                        return NetworkResult.Success(allDataList)
                     }
                 }
-                throw Exception("API response not successful")
+                return NetworkResult.Error("API response not successful")
             } catch (e: Exception) {
-                // If there's an exception with the API call, log it or handle it as needed
-                // Don't throw an exception here to avoid bypassing Room data retrieval
+                return NetworkResult.Error(e.message)
             }
         } else {
-            Toast.makeText(context, "Internet is Not There", Toast.LENGTH_SHORT).show()
+            return NetworkResult.Error("Internet is Not There")
         }
 
         // If the user is offline or the API call failed, fetch data from Room
         val localData = localDataSource.allNotesLiveData.value
         if (!localData.isNullOrEmpty()) {
             // Return Room data if available
-            Log.d("TAG", "fetchData: $localData")
-            return localData
+            return NetworkResult.Success(localData)
         } else {
             // Handle the case where there is no data in Room as well
             // You can throw an exception or return an empty list here
-            throw Exception("No data available")
+            return NetworkResult.Error("No data available")
         }
     }
 
@@ -80,6 +77,8 @@ class NoteRepository @Inject constructor(
         }
     }
 }
+
+
 
 
 

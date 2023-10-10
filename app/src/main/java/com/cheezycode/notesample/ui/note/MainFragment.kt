@@ -40,19 +40,48 @@ class MainFragment : Fragment() {
 
     override fun onViewCreated(view: View, savedInstanceState: Bundle?) {
         super.onViewCreated(view, savedInstanceState)
-//        viewModel = ViewModelProvider(this)[NoteViewModel::class.java]
-
         viewModel = ViewModelProvider(this).get(NoteViewModel::class.java)
 
-        viewModel.dataLiveData.observe(viewLifecycleOwner) { data ->
-            // Update your UI with the data here
-            data.forEach {
-                binding.textView.text = it.title.toString()
+        viewModel.dataLiveData.observe(viewLifecycleOwner) { result ->
+            when (result) {
+                is NetworkResult.Success -> {
+                    // Handle success, update your UI with result.data
+                    val data = result.data
+                    Log.d(TAG, "onViewCreatedRoomdatabse: $data")
+                    data?.forEach {
+                        binding.textView.text = it.title.toString()
+                    }
+                    // ...
+                }
+                is NetworkResult.Error -> {
+
+                    // Handle error, show an error message to the user
+                    val errorMessage = result.message ?: "An error occurred"
+                    // ...
+                }
+                is NetworkResult.Loading -> {
+                    // Handle loading, e.g., show a loading spinner
+                    // ...
+                }
             }
         }
 
         // Fetch data when needed, e.g., in response to a button click or in onResume
         viewModel.fetchData()
+    }
+//        viewModel = ViewModelProvider(this)[NoteViewModel::class.java]
+
+//        viewModel = ViewModelProvider(this).get(NoteViewModel::class.java)
+//
+//        viewModel.dataLiveData.observe(viewLifecycleOwner) { data ->
+//            // Update your UI with the data here
+//            data.forEach {
+//                binding.textView.text = it.title.toString()
+//            }
+//        }
+//
+//        // Fetch data when needed, e.g., in response to a button click or in onResume
+//        viewModel.fetchData()
 
         // Observe the LiveData from the ViewModel
 //        viewModel.dataLiveData.observe(viewLifecycleOwner, Observer { data ->
@@ -71,5 +100,5 @@ class MainFragment : Fragment() {
 //        })
 //        viewModel.fetchData()
 
-    }
+//    }
 }
